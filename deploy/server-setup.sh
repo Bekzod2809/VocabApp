@@ -9,7 +9,9 @@
 set -euo pipefail
 
 mkdir -p /opt/vocabapp/deploy /opt/vocabapp/src /opt/vocabapp/backups
-chmod 700 /opt/vocabapp /opt/vocabapp/deploy /opt/vocabapp/backups
+# /opt/vocabapp: 711 — nginx www/ papkasiga kira oladi, lekin ichini ko'ra olmaydi
+chmod 711 /opt/vocabapp
+chmod 700 /opt/vocabapp/deploy /opt/vocabapp/backups
 
 if [ ! -f /opt/vocabapp/deploy/.env ]; then
     umask 077

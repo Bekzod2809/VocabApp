@@ -1,7 +1,7 @@
 #!/bin/bash
 # VocabApp — serverdagi deploy skripti.
 #
-# Loyiha arxivi (tar.gz: backend/VocabApp.Api, deploy/) stdin orqali keladi.
+# Loyiha arxivi (tar.gz: backend/VocabApp.Api, frontend/, deploy/) stdin orqali keladi.
 # Laptopdan push-to-server.sh yuboradi va har safar shu skriptning yangi nusxasini
 # /opt/vocabapp/deploy.sh ga o'zi yozib qo'yadi.
 #
@@ -28,6 +28,18 @@ if [ ! -f /opt/vocabapp/deploy/.env ]; then
     echo "XATO: /opt/vocabapp/deploy/.env yo'q (birinchi marta: server-setup.sh)" >&2
     exit 1
 fi
+
+echo "==> Sayt (frontend) build qilinmoqda"
+# Laptopni yuklamaslik uchun build serverda, vaqtinchalik node konteynerida; npm keshi volume'da qoladi
+docker run --rm --memory 1g \
+    -v "$VAQTINCHA/frontend:/app" -v vocabapp-npm-cache:/root/.npm -w /app \
+    node:22-alpine sh -c 'npm ci --no-audit --no-fund --loglevel=error && npm run build'
+# Bir zumda almashtiriladi: eski fayllar o'chguncha sayt bo'sh qolmaydi
+rm -rf /opt/vocabapp/www.new /opt/vocabapp/www.old
+cp -r "$VAQTINCHA/frontend/dist" /opt/vocabapp/www.new
+[ -d /opt/vocabapp/www ] && mv /opt/vocabapp/www /opt/vocabapp/www.old
+mv /opt/vocabapp/www.new /opt/vocabapp/www
+rm -rf /opt/vocabapp/www.old
 
 echo "==> Build qilinib, qayta ishga tushirilmoqda"
 cd /opt/vocabapp/deploy

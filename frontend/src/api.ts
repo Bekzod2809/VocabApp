@@ -18,11 +18,15 @@ export class NetworkError extends Error {
 
 const REQUEST_TIMEOUT_MS = 20_000
 
-// Saytda: sayt ochilgan kompyuterning 5080-porti.
 // Ilovada (APK): build paytida berilgan manzil (VITE_DEFAULT_SERVER), keyin sozlamada o'zgartirsa bo'ladi.
+// Serverdagi saytda: API shu domenning o'zida (nginx /api ni backendga uzatadi).
+// Lokal (npm run dev): sayt ochilgan kompyuterning 5080-porti.
 export function defaultServerUrl(): string {
   if (Capacitor.isNativePlatform()) {
     return import.meta.env.VITE_DEFAULT_SERVER ?? ''
+  }
+  if (import.meta.env.PROD) {
+    return location.origin
   }
   return `${location.protocol}//${location.hostname}:5080`
 }

@@ -18,5 +18,6 @@ echo "==> Kod yuborilmoqda va build qilinmoqda"
 tar -czf - \
     --exclude='bin' --exclude='obj' --exclude='Logs' \
     --exclude='appsettings.Development.json' \
-    backend/VocabApp.Api deploy \
+    --exclude='node_modules' --exclude='dist' --exclude='android' \
+    backend/VocabApp.Api frontend deploy \
     | ssh "$SERVER" /opt/vocabapp/deploy.sh

@@ -41,9 +41,9 @@ Sinx sinovi: `backend/scripts/sync-test.ps1` (faqat bo'sh test bazasida — ichi
 
 ## Server (Contabo, Docker)
 
-API: **https://vocab.169-58-150-96.sslip.io** — nginx (HTTPS, certbot) → `127.0.0.1:5090` → Docker (`vocabapp` compose: api + postgres). Serverdagi boshqa loyihalarga tegmaydi: hammasi `/opt/vocabapp` da.
+Sayt: **https://vocab.bekzodxasanov.uz** (API ham shu yerda, `/api/`). nginx (HTTPS, certbot): sayt fayllari `/opt/vocabapp/www` dan, `/api/` → `127.0.0.1:5090` → Docker (`vocabapp` compose: api + postgres). Eski APK'lar uchun `https://vocab.169-58-150-96.sslip.io` ham ishlaydi (faqat API). Serverdagi boshqa loyihalarga tegmaydi: hammasi `/opt/vocabapp` da.
 
-Yangi versiyani yuborish (laptopda, Git Bash):
+Yangi versiyani yuborish (laptopda, Git Bash) — backend va sayt birga; sayt serverda build qilinadi:
 
 ```bash
 bash deploy/push-to-server.sh
