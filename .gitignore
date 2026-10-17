@@ -1,0 +1,17 @@
+# Maxfiy sozlamalar (parol, JWT kalit) — namunasi: appsettings.Development.example.json
+**/appsettings.Development.json
+**/appsettings.Production.json
+
+# Loglar
+**/Logs/
+
+# Frontend
+node_modules/
+dist/
+
+# IDE / OS
+.vs/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
