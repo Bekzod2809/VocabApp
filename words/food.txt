@@ -1,0 +1,33 @@
+# Food — 30 ta so'z (B1 darajadagi misollar)
+# Format: so'z | tarjima | misol gap
+
+bread | non | We buy fresh bread from the bakery every morning.
+rice | guruch | Rice is the main ingredient of Uzbek plov.
+meat | go'sht | I try not to eat too much red meat.
+chicken | tovuq go'shti | She cooked chicken with vegetables for dinner.
+fish | baliq | Fish is healthy because it contains a lot of protein.
+egg | tuxum | He usually has two boiled eggs for breakfast.
+cheese | pishloq | This sandwich has too much cheese for me.
+butter | sariyog' | Spread some butter on the bread before you add the jam.
+vegetable | sabzavot | Doctors say we should eat vegetables every day.
+fruit | meva | Fresh fruit is much healthier than sweets.
+onion | piyoz | Cutting onions always makes my eyes water.
+garlic | sarimsoq | Add a little garlic to make the soup tastier.
+carrot | sabzi | My grandmother grows carrots in her garden.
+potato | kartoshka | Fried potatoes are popular all over the world.
+cucumber | bodring | A salad of tomatoes and cucumbers is perfect in summer.
+flour | un | You need two cups of flour to make this cake.
+sugar | shakar | I drink my tea without sugar.
+salt | tuz | The soup needs a bit more salt.
+pepper | murch | Black pepper gives the meat a stronger taste.
+oil | o'simlik yog'i | Heat the oil in the pan before adding the onions.
+soup | sho'rva | A bowl of hot soup is great on a cold day.
+dessert | shirinlik | We were too full to order dessert.
+snack | gazak, yengil tamaddi | I always keep a healthy snack in my bag.
+meal | taom, ovqat | Breakfast is the most important meal of the day.
+recipe | retsept | Can you share the recipe for this delicious salad?
+ingredient | masalliq | The ingredients for this dish are easy to find.
+delicious | juda mazali | The food at that restaurant was absolutely delicious.
+spicy | achchiq, ziravorli | I can't eat spicy food because it hurts my stomach.
+boil | qaynatmoq | Boil the water before you add the pasta.
+fry | qovurmoq | Fry the onions until they turn golden.
