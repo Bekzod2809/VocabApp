@@ -61,7 +61,8 @@ public class SyncService : ISyncService
 
         await WordRepository.SaveChangesAsync();
 
-        hasChanges |= await DeleteWordsOfDeletedGroupsAsync(newVersion);
+        var cascadeDeletedWordIds = await DeleteWordsOfDeletedGroupsAsync(newVersion);
+        hasChanges |= cascadeDeletedWordIds.Count > 0;
 
         if (hasChanges)
         {
@@ -70,11 +71,26 @@ public class SyncService : ISyncService
 
         await SyncStateRepository.SaveChangesAsync();
 
+        // Telefon o'zi yuborgan va qabul qilingan yozuvlarni unga qaytarib yuborishning keragi yo'q
+        var echoGroupIds = syncRequestDto.Groups
+                            .Select(g => g.Id)
+                            .Except(rejectedGroupIds)
+                            .ToList();
+        var echoWordIds = syncRequestDto.Words
+                            .Select(w => w.Id)
+                            .Except(rejectedWordIds)
+                            .Except(cascadeDeletedWordIds)
+                            .ToList();
+        var echoProgressIds = syncRequestDto.Progress
+                            .Select(p => p.WordId)
+                            .Except(rejectedProgressIds)
+                            .ToList();
+
         var response = await PullAsync(
             syncRequestDto.LastVersion,
-            rejectedGroupIds,
-            rejectedWordIds,
-            rejectedProgressIds);
+            new PullFilter(rejectedGroupIds, echoGroupIds),
+            new PullFilter(rejectedWordIds, echoWordIds),
+            new PullFilter(rejectedProgressIds, echoProgressIds));
 
         response.CurrentVersion = syncState.CurrentVersion;
 
@@ -199,7 +215,7 @@ public class SyncService : ISyncService
     }
 
     // Guruh o'chirilsa, uning ichidagi so'zlar ham o'chirilgan deb belgilanadi
-    private async Task<bool> DeleteWordsOfDeletedGroupsAsync(long newVersion)
+    private async Task<List<Guid>> DeleteWordsOfDeletedGroupsAsync(long newVersion)
     {
         var orphanWords = await WordRepository
                             .GetAllQuery()
@@ -208,7 +224,7 @@ public class SyncService : ISyncService
 
         if (orphanWords.Count == 0)
         {
-            return false;
+            return new List<Guid>();
         }
 
         var now = DateTime.UtcNow;
@@ -220,7 +236,7 @@ public class SyncService : ISyncService
             word.Version = newVersion;
         }
 
-        return true;
+        return orphanWords.Select(w => w.WordId).ToList();
     }
 
     private async Task EnsureGroupsExistAsync(List<WordSyncDto> wordDtos, List<GroupSyncDto> groupDtos)
@@ -258,11 +274,15 @@ public class SyncService : ISyncService
         }
     }
 
+    // Rejected: albatta qaytariladi (telefondagi nusxa eskirgan).
+    // Echo: telefon o'zi yuborgan, unda allaqachon bor - qaytarilmaydi.
+    private record PullFilter(List<Guid> Rejected, List<Guid> Echo);
+
     private async Task<SyncResponseDto> PullAsync(
         long lastVersion,
-        List<Guid> rejectedGroupIds,
-        List<Guid> rejectedWordIds,
-        List<Guid> rejectedProgressIds)
+        PullFilter groupFilter,
+        PullFilter wordFilter,
+        PullFilter progressFilter)
     {
         // Birinchi sinxda o'chirilgan yozuvlarni yuborishning keragi yo'q
         var isFirstSync = lastVersion == 0;
@@ -270,22 +290,28 @@ public class SyncService : ISyncService
         var groups = await GroupRepository
                         .GetAllQuery()
                         .AsNoTracking()
-                        .Where(g => (g.Version > lastVersion && (!isFirstSync || !g.IsDeleted))
-                                    || rejectedGroupIds.Contains(g.GroupId))
+                        .Where(g => (g.Version > lastVersion
+                                        && (!isFirstSync || !g.IsDeleted)
+                                        && !groupFilter.Echo.Contains(g.GroupId))
+                                    || groupFilter.Rejected.Contains(g.GroupId))
                         .ToListAsync();
 
         var words = await WordRepository
                         .GetAllQuery()
                         .AsNoTracking()
-                        .Where(w => (w.Version > lastVersion && (!isFirstSync || !w.IsDeleted))
-                                    || rejectedWordIds.Contains(w.WordId))
+                        .Where(w => (w.Version > lastVersion
+                                        && (!isFirstSync || !w.IsDeleted)
+                                        && !wordFilter.Echo.Contains(w.WordId))
+                                    || wordFilter.Rejected.Contains(w.WordId))
                         .ToListAsync();
 
         var progress = await WordProgressRepository
                         .GetAllQuery()
                         .AsNoTracking()
-                        .Where(p => (p.Version > lastVersion && (!isFirstSync || !p.Word.IsDeleted))
-                                    || rejectedProgressIds.Contains(p.WordId))
+                        .Where(p => (p.Version > lastVersion
+                                        && (!isFirstSync || !p.Word.IsDeleted)
+                                        && !progressFilter.Echo.Contains(p.WordId))
+                                    || progressFilter.Rejected.Contains(p.WordId))
                         .ToListAsync();
 
         return new SyncResponseDto

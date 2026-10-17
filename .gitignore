@@ -9,6 +9,9 @@
 node_modules/
 dist/
 
+# Claude Code lokal sozlamalari
+.claude/
+
 # IDE / OS
 .vs/
 .vscode/
