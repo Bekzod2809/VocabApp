@@ -1,0 +1,7 @@
+bin/
+obj/
+Logs/
+appsettings.Development.json
+appsettings.Development.example.json
+Dockerfile
+.dockerignore

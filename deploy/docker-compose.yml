@@ -1,0 +1,59 @@
+# VocabApp — serverdagi Docker konteynerlari.
+#
+# Serverda: /opt/vocabapp/deploy/docker-compose.yml, parollar yonidagi .env faylida
+# (namuna: vocabapp.env.example). Compose loyiha nomi "vocabapp" — boshqa loyihalarga tegmaydi.
+#
+#   docker compose up -d --build     # build va ishga tushirish
+#   docker compose logs -f api       # loglar
+#   docker compose down              # to'xtatish (baza volume'da saqlanib qoladi)
+
+name: vocabapp
+
+# Docker loglari diskni to'ldirib yubormasligi uchun
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vocabapp
+      POSTGRES_USER: vocabapp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env da POSTGRES_PASSWORD yo'q}
+    volumes:
+      # Postgres 18+ ma'lumotlarni /var/lib/postgresql/<versiya>/ ichida saqlaydi
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vocabapp -d vocabapp"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    # Port tashqariga ochilmaydi: bazaga faqat api konteyneri ulanadi
+    mem_limit: 512m
+    logging: *logging
+
+  api:
+    build:
+      context: ../src/VocabApp.Api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DatabaseConnection: "Host=db;Port=5432;Database=vocabapp;Username=vocabapp;Password=${POSTGRES_PASSWORD}"
+      Jwt__SecurityKey: ${JWT_SECURITY_KEY:?.env da JWT_SECURITY_KEY yo'q}
+    ports:
+      # Faqat serverning o'zidan: tashqaridan nginx (HTTPS) orqali kiriladi
+      - "127.0.0.1:5090:8080"
+    volumes:
+      - api-logs:/app/Logs
+    mem_limit: 512m
+    logging: *logging
+
+volumes:
+  db-data:
+  api-logs:

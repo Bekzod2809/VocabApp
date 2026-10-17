@@ -39,6 +39,18 @@ Swagger: http://localhost:5080/swagger. Telefon Wi-Fi orqali ulanishi uchun: `do
 
 Sinx sinovi: `backend/scripts/sync-test.ps1` (faqat bo'sh test bazasida — ichidagi izohni o'qing).
 
+## Server (Contabo, Docker)
+
+API: **https://vocab.169-58-150-96.sslip.io** — nginx (HTTPS, certbot) → `127.0.0.1:5090` → Docker (`vocabapp` compose: api + postgres). Serverdagi boshqa loyihalarga tegmaydi: hammasi `/opt/vocabapp` da.
+
+Yangi versiyani yuborish (laptopda, Git Bash):
+
+```bash
+bash deploy/push-to-server.sh
+```
+
+Birinchi o'rnatish tartibi, nginx va backup — `deploy/` papkasidagi fayllar boshidagi izohlarda. Baza har kuni 03:40 da `/opt/vocabapp/backups` ga zaxiralanadi (14 kun saqlanadi).
+
 ## Frontend (sayt)
 
 ```bash

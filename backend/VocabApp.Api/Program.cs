@@ -32,6 +32,7 @@ public class Program
         builder.ConfigureDI();
         builder.ConfigureJwt();
         builder.ConfigureRateLimit();
+        builder.ConfigureForwardedHeaders();
         builder.AddJwtAuthentication();
 
 
@@ -39,6 +40,7 @@ public class Program
 
         await app.ApplyMigrationsAsync();
 
+        app.UseForwardedHeaders();
         app.UseMiddleware<ExceptionMiddleware>();
         app.UseRequestLogging();
 
